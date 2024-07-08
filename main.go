@@ -1,6 +1,7 @@
 package main
 
 import (
+	_ "embed"
 	"fmt"
 
 	rl "github.com/gen2brain/raylib-go/raylib"
@@ -24,6 +25,8 @@ const i_y = 0.5;
 const j_x = -1;
 const j_y = 0.5;
 
+//go:embed sprites/isoBlock.png
+var isoBytes []byte
 
 func gridToScreenCoord(grid rl.Vector2) rl.Vector2 {
 	var res = rl.Vector2{
@@ -63,9 +66,10 @@ func screenToGridCoord(screen rl.Vector2) rl.Vector2 {
 	return rl.Vector2Subtract(tmp, offset)
   }
 
-func loadTile(path string) rl.Texture2D {
+func loadTile(_ string) rl.Texture2D {
 	// Tiles cant be loaded globally and must be loaded after rl.InitWindow
-	var im = rl.LoadImage(path)
+	//var im = rl.LoadImage(path)
+	var im = LoadImageFromMemory(isoBytes)
 	if im.Height != TILE_HEIGHT || im.Width != TILE_WIDTH {
 		if USE_NEAREST {
 			rl.ImageResizeNN(im, TILE_WIDTH, TILE_HEIGHT)
@@ -75,6 +79,16 @@ func loadTile(path string) rl.Texture2D {
 	}
 
 	return rl.LoadTextureFromImage(im)
+}
+
+func LoadImageFromMemory(data []byte) *rl.Image {
+    // Get a pointer to the image data and its size
+    //dataPtr := unsafe.Pointer(&data[0])
+    dataSize := len(data)
+
+    // Call Raylib's LoadImageFromMemory function
+    img := rl.LoadImageFromMemory(".png", data, int32(dataSize))
+    return img
 }
 
 
