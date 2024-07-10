@@ -158,8 +158,8 @@ func drawHelperGrid() {
 }
 
 func drawHelperGridMouse(mouse Vector2, size int) {
-	var mouse_x = int(mouse.X)
-	var mouse_y = int(mouse.Y)
+	var mouse_x = toNearestGrid(mouse.X)
+	var mouse_y = toNearestGrid(mouse.Y)
 
 	var x_0 = mouse_x - size
 	var y_0 = mouse_y - size
