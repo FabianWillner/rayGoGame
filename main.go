@@ -39,7 +39,7 @@ func (grid Vector2) gridToScreenCoord() Vector2 {
 		grid.X * i_y * 0.5 * TILE_HEIGHT + grid.Y * j_y * 0.5 * TILE_HEIGHT,
 	) 
 
-	return Vector2Add(res, OFFSET_VEC)
+	return res.addV(OFFSET_VEC)
 }
 
 func gridToScreenCoord(x float32, y float32) Vector2 {
@@ -48,7 +48,7 @@ func gridToScreenCoord(x float32, y float32) Vector2 {
 		x * i_y * 0.5 * TILE_HEIGHT + y * j_y * 0.5 * TILE_HEIGHT,
 	)
 
-	return Vector2Add(v, OFFSET_VEC)
+	return v.addV(OFFSET_VEC)
 }
 
 func invert_matrix(a float32, b float32, c float32, d float32) (float32, float32, float32, float32) {
@@ -78,7 +78,7 @@ func screenToGridCoord(screen Vector2) Vector2 {
 		WINDOW_WIDTH/2 * c + WINDOW_HEIGHT/2 * d,
 	)
 	
-	return Vector2Subtract(tmp, offset)
+	return tmp.subV(offset)
   }
 
 func loadTile(_ string) rl.Texture2D {
@@ -105,11 +105,11 @@ func LoadImageFromMemory(data []byte) *rl.Image {
     return img
 }
 
-func Vector2Add(v1 Vector2, v2 Vector2) Vector2 {
+func (v1 Vector2) addV(v2 Vector2) Vector2 {
 	return Vector2{rl.Vector2Add(v1.Vector2, v2.Vector2)}
 }
 
-func Vector2Subtract(v1 Vector2, v2 Vector2) Vector2 {
+func (v1 Vector2) subV(v2 Vector2) Vector2 {
 	return Vector2{rl.Vector2Subtract(v1.Vector2, v2.Vector2)}
 }
 
@@ -185,7 +185,6 @@ func toNearestGrid(a float32) int {
 }
 
 func main() {
-	fmt.Println("Test")
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "raygogame")
 	defer rl.CloseWindow()
 
@@ -200,11 +199,7 @@ func main() {
 
 		rl.ClearBackground(rl.Black)
 
-		
-		
-		
 
-		
 		for x := 0; x < 10; x++ {
 			for y := 0; y < 10; y++ {
 				rl.DrawTextureV(isoBlock, gridToScreenCoord(float32(x), float32(y)).Vector2, rl.RayWhite)
