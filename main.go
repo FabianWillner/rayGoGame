@@ -140,14 +140,14 @@ func createVector2Int(x int, y int) Vector2 {
 	return createVector2(float32(x), float32(y))
 }
 
-func drawHelperGrid() {
-	var x_0 = -5
-	var y_0 = -5
-	for x := x_0; x < 20; x++ {
-		for y := y_0; y < 20; y++ {
+func drawHelperGrid(min int, max int) {
+	var x_0 = min
+	var y_0 = min
+	for x := x_0; x < max; x++ {
+		for y := y_0; y < max; y++ {
 			var start = createVector2Int(x, y).gridToScreenCoord().addX(TILE_WIDTH/2)
-			var end = createVector2Int(20, y).gridToScreenCoord().addX(TILE_WIDTH/2)
-			var end2 = createVector2Int(x, 20).gridToScreenCoord().addX(TILE_WIDTH/2)
+			var end = createVector2Int(max, y).gridToScreenCoord().addX(TILE_WIDTH/2)
+			var end2 = createVector2Int(x, max).gridToScreenCoord().addX(TILE_WIDTH/2)
 			if x != x_0 {
 				rl.DrawLineV(start.Vector2, end2.Vector2, rl.Lime)
 			}
@@ -194,11 +194,6 @@ type Sprite struct {
 	isFlipped bool
 	originPixel int
 }
-
-
-var spriteMap map[string]Sprite = make(map[string]Sprite)
-
-
 
 func createSpriteFromMemory(data []byte, len int, originPixel int) Sprite {
 	var tex rl.Texture2D = rl.LoadTextureFromImage(LoadImageFromMemory(data))
@@ -251,19 +246,21 @@ func (spr Sprite) draw(x int, y int, origin_type int) {
 	rl.DrawTexturePro(spr.Texture, spr.FrameRect, dest, spr.origin(origin_type).Vector2, 0, rl.White)
 }
 
-func loadSprites() {
+func loadSprites() map[string]Sprite {
+	var spriteMap map[string]Sprite = make(map[string]Sprite)
 	spriteMap["tile1"] = createSpriteFromMemory(isoBytes, 1, 0)
 	spriteMap["samurai"] = createSpriteFromMemory(samurai, 4, 12)
+	return spriteMap
 }
-
 
 
 
 func main() {
 	rl.InitWindow(WINDOW_WIDTH, WINDOW_HEIGHT, "raygogame")
 	defer rl.CloseWindow()
-
-	loadSprites()
+	
+	
+	var spriteMap = loadSprites()
 
 	var sam = spriteMap["samurai"]
 	var isoBlock = spriteMap["tile1"]
@@ -322,6 +319,9 @@ func main() {
 			framesSpeed = 1
 		}
 
+
+		var mouseVec = Vector2{ rl.GetMousePosition() }
+		var MouseVecGrid = screenToGridCoord(mouseVec)
 		rl.BeginDrawing()
 
 		
@@ -331,26 +331,15 @@ func main() {
 
 		for x := 0; x < 10; x++ {
 			for y := 0; y < 10; y++ {
-				//rl.DrawTextureV(isoBlock, gridToScreenCoord(x, y).Vector2, rl.RayWhite)
 				isoBlock.draw(x, y, origin_default)
 			} 
 			
 		}
-
-		//rl.DrawTextureV(samurai_anim[currentFrame], , rl.RayWhite)
-
-		// for i := 0; i < 4; i++ {
-		// 	mySprite.selectSprite(i)
-		// 	rl.DrawTextureRec(mySprite.Texture, mySprite.FrameRect, createVector2Int(WINDOW_WIDTH/2 + i * TILE_WIDTH + TILE_WIDTH, 300).Vector2, rl.White);
-		// }
-
-		// var scrn = gridToScreenCoord(5, 5).addY(TILE_SIZE/4).addX(TILE_SIZE/2)
-		// var dest = rl.NewRectangle(scrn.X, scrn.Y,  mySprite.FrameRect.Width * TILE_MULTIPLICATOR, mySprite.FrameRect.Height * TILE_MULTIPLICATOR)
-		// rl.DrawTexturePro(mySprite.Texture, mySprite.FrameRect, dest, mySprite.origin().Vector2, 0, rl.White)
-
+		//drawHelperGridMouse(MouseVecGrid, 3)
+		drawHelperGrid(-3, 13)
 		sam.draw(posX, posY, origin_down)
 		
-		//drawHelperGrid()
+		
 		//rl.DrawLine(WINDOW_WIDTH/2, 0, WINDOW_WIDTH/2, WINDOW_HEIGHT, rl.Red)
 		
 		rl.DrawFPS(0,0)
@@ -358,14 +347,14 @@ func main() {
 		var inc int32 = 20
 		rl.DrawText("Controls: Left: Framespeed--; Right: Framespeed++; WASD: Movement; R: Flip Sprite", 100, 0, 20, rl.Green)
 		inc += inc_offsett
-		var mouseVec = Vector2{ rl.GetMousePosition() }
+		
 		rl.DrawText(fmt.Sprintf("Mouse X: %.2f - Mouse Y: %.2f", mouseVec.X, mouseVec.Y), 0, inc, 20, rl.Green)
 		inc += inc_offsett
-		var newMouseVec = screenToGridCoord(mouseVec)
-		drawHelperGridMouse(newMouseVec, 3)
-		rl.DrawText(fmt.Sprintf("Mouse X: %.2f - Mouse Y: %.2f", newMouseVec.X, newMouseVec.Y), 0, inc, 20, rl.Green)
+		
+		
+		rl.DrawText(fmt.Sprintf("Mouse X: %.2f - Mouse Y: %.2f", MouseVecGrid.X, MouseVecGrid.Y), 0, inc, 20, rl.Green)
 		inc += inc_offsett
-		rl.DrawText(fmt.Sprintf("Mouse X: %d - Mouse Y: %d", toNearestGrid(newMouseVec.X), toNearestGrid(newMouseVec.Y)), 0, inc, 20, rl.Green)
+		rl.DrawText(fmt.Sprintf("Mouse X: %d - Mouse Y: %d", toNearestGrid(MouseVecGrid.X), toNearestGrid(MouseVecGrid.Y)), 0, inc, 20, rl.Green)
 		inc += inc_offsett
 
 		rl.DrawText(fmt.Sprintf("Current Frame: %d", currentFrame), 0, inc, 20, rl.Green)
